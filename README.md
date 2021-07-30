@@ -2,13 +2,13 @@
 
 ## Task goals
 
-*  Create bucket for Tomcat application files and another one for static web files (think about permissions)
-*  Create MIG for backend with installed tomcat and on boot download demo application from bucket. Setup autoscaling by CPU (think about scale down)
-* Create bucket for Nginx application files and another one for static web files (think about permissions)
-* Add one more MIG for frontend with nginx, by path /demo/ show demo app from bucket, by path /img/picture.jpg show file from bucket
-* Create LB for tomcat and nginx
-* Setup export of nginx logs to bucket/BigQuery
-* Make SSL terination
+1. Create bucket for Tomcat application files and another one for static web files (think about permissions).
+2. Create MIG for backend with installed tomcat and on boot download demo application from bucket. Setup autoscaling by CPU (think about scale down).
+3. Create bucket for Nginx application files and another one for static web files (think about permissions).
+4. Add one more MIG for frontend with nginx, by path /demo/ show demo app from bucket, by path /img/picture.jpg show file from bucket.
+5. Create LB for tomcat and nginx.
+6. Setup export of nginx logs to bucket/BigQuery.
+7. Make SSL terination.
 
 ## Solution using Cloud Shell
 
