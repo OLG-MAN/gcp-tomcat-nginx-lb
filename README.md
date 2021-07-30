@@ -21,7 +21,7 @@ gsutil cp startup-tomcat.sh gs://tomcat-bucket1
 ```
 
 2. 
-* Create instance template for tomcat MIG with startup script from bucket. (used startup.sh file in repo)
+* Create instance template for tomcat MIG with startup script from bucket. (used startup-tomcat.sh file in repo)
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create tomcat-template1 --machine-type=e2-medium --network=projects/tomcat-nginx-lb/global/networks/default --network-tier=PREMIUM --metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh --maintenance-policy=MIGRATE --service-account=1010500951238-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/cloud-platform --tags=http-server,https-server --image=debian-10-buster-v20210721 --image-project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-balanced --boot-disk-device-name=tomcat-template1 --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --reservation-affinity=any
