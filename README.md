@@ -57,3 +57,80 @@ gcloud compute --project=tomcat-nginx-lb instance-groups managed create instance
 
 gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-nginx" --zone "us-west2-a" --cool-down-period "60" --max-num-replicas "4" --min-num-replicas "2" --target-cpu-utilization "0.7" --mode "on"
 ```
+
+
+---------------
+
+
+* INT-LB tomcat
+
+```
+gcloud beta compute --project=tomcat-nginx-lb instance-templates create tomcat-template-int --machine-type=e2-medium --region=us-west1 --network=lb-network --subnet=backend-subnet --tags=allow-ssh,load-balanced-backend --metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh --maintenance-policy=MIGRATE --service-account=1010500951238-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/cloud-platform  --image=debian-10-buster-v20210721 --image-project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-balanced --boot-disk-device-name=tomcat-temmplate-int --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --reservation-affinity=any
+
+gcloud compute --project=tomcat-nginx-lb instance-groups managed create instance-group-tomcat-int --base-instance-name=instance-group-tomcat-int --template=tomcat-template-int --size=1 --zone=us-west1-a
+
+gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-tomcat-int" --zone "us-west1-a" --cool-down-period "60" --max-num-replicas "4" --min-num-replicas "2" --target-cpu-utilization "0.75" --mode "on"
+
+
+gcloud compute backend-services add-backend l7-ilb-backend-service \
+  --balancing-mode=UTILIZATION \
+  --instance-group=instance-group-tomcat-int \
+  --instance-group-zone=us-west1-a \
+  --region=us-west1 
+```
+
+* TOMCAT INSTANCE 
+
+```
+gcloud beta compute --project=tomcat-nginx-lb instances create tomcat101 \
+--zone=us-west1-a --machine-type=e2-medium --subnet=backend-subnet --network-tier=PREMIUM \
+--metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh \
+--tags=allow-ssh,allow-http \
+--image=debian-10-buster-v20210721 \
+--image-project=debian-cloud \
+--boot-disk-size=10GB \
+```
+
+
+
+* NEW TOMCAT MIG and LB
+
+```
+gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-1 --machine-type=e2-medium --subnet=projects/tomcat-nginx-lb/regions/us-west1/subnetworks/backend-subnet --network-tier=PREMIUM --metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh --maintenance-policy=MIGRATE --service-account=1010500951238-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --region=us-west1 --tags=allow-ssh,allow-http --image=debian-10-buster-v20210721 --image-project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-balanced --boot-disk-device-name=instance-template-tomcat-1 --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --reservation-affinity=any
+
+gcloud compute --project "tomcat-nginx-lb" health-checks create http "tomcat-healt-check" --timeout "5" --check-interval "10" --unhealthy-threshold "3" --healthy-threshold "2" --port "8080" --request-path "/"
+
+gcloud beta compute --project=tomcat-nginx-lb instance-groups managed create instance-group-tomcat-1 --base-instance-name=instance-group-tomcat-1 --template=instance-template-tomcat-1 --size=1 --zone=us-west1-b --health-check=tomcat-healt-check --initial-delay=300
+
+gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-tomcat-1" --zone "us-west1-b" --cool-down-period "60" --max-num-replicas "4" --min-num-replicas "2" --target-cpu-utilization "0.6" --mode "on"
+```
+
+* NGINX INSTANCE
+
+```
+gcloud beta compute --project=tomcat-nginx-lb instances create nginx102 \
+--zone=us-west1-a --machine-type=e2-medium --subnet=backend-subnet --network-tier=PREMIUM \
+--metadata=startup-script-url=gs://nginx-bucket1/startup-nginx.sh \
+--tags=allow-ssh,allow-http \
+--image=debian-10-buster-v20210721 \
+--image-project=debian-cloud \
+--boot-disk-size=10GB \
+```
+
+* NGINX MIG and LB
+
+- MIG
+```
+gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-nginx-1 --machine-type=e2-medium --subnet=projects/tomcat-nginx-lb/regions/us-west1/subnetworks/backend-subnet --network-tier=PREMIUM --metadata=startup-script-url=gs://nginx-bucket1/startup-nginx.sh --maintenance-policy=MIGRATE --service-account=1010500951238-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --region=us-west1 --tags=allow-ssh,allow-http --image=debian-10-buster-v20210721 --image-project=debian-cloud --boot-disk-size=10GB --boot-disk-type=pd-balanced --boot-disk-device-name=instance-template-nginx-1 --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --reservation-affinity=any
+
+gcloud compute --project "tomcat-nginx-lb" health-checks create http "nginx-health-check" --timeout "5" --check-interval "10" --unhealthy-threshold "3" --healthy-threshold "2" --port "80" --request-path "/"
+
+gcloud beta compute --project=tomcat-nginx-lb instance-groups managed create instance-group-nginx-1 --base-instance-name=instance-group-nginx-1 --template=instance-template-nginx-1 --size=1 --zone=us-west1-b --health-check=nginx-health-check --initial-delay=300
+
+gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-nginx-1" --zone "us-west1-b" --cool-down-period "70" --max-num-replicas "4" --min-num-replicas "2" --target-cpu-utilization "0.6" --mode "on"
+
+```
+- LB
+```
+
+```
