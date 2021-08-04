@@ -85,8 +85,8 @@ systemctl start tomcat
 systemctl enable tomcat
 
 
-# Install app. Access to app by address <ExternalIP>:8080/sample/
-wget https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war
+# Install app.
+gsutil cp gs://tomcat-bucket1/sample.war .
 mv sample.war /opt/tomcat/webapps
 systemctl restart tomcat
 HERE

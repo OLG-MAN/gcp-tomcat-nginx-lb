@@ -33,7 +33,7 @@ EOF
 service nginx restart
 HERE
 
-# Add content to site
+# Change content on nginx main page.
 # sudo chmod 755 /var/www/html/index.nginx-debian.html
 # curl "http://metadata.google.internal/computeMetadata/v1/instance/name" -H "Metadata-Flavor: Google" > /var/www/html/index.nginx-debian.html
 # echo '<br>' >> /var/www/html/index.nginx-debian.html
