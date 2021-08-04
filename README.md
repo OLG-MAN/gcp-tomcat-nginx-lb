@@ -328,3 +328,6 @@ gcloud compute forwarding-rules create http-content-rule \
 
 6. Analyzing logs, Fluentd and BigQuery
 
+Using this official guide 
+
+https://cloud.google.com/architecture/fluentd-bigquery
