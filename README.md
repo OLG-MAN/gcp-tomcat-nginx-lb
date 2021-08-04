@@ -14,7 +14,7 @@
 
 ### Configuring Network
 
-* Delete default VPC. Make new VPC with 2 subnets (for backend,frontend and for proxy)
+* #### Delete default VPC. Make new VPC with 2 subnets (for backend,frontend and for proxy)
 
 ```
 gcloud compute networks delete default
@@ -183,6 +183,7 @@ gcloud compute target-http-proxies create tomcat-lb-proxy \
 
 * Forwarding rule 
 
+```
 gcloud compute forwarding-rules create tomcat-forwarding-rule \
 --load-balancing-scheme=INTERNAL_MANAGED \
 --network=lb-network \
@@ -192,7 +193,7 @@ gcloud compute forwarding-rules create tomcat-forwarding-rule \
 --region=us-west1 \
 --target-http-proxy=tomcat-lb-proxy \
 --target-http-proxy-region=us-west1
-
+```
 
 4. 
 * Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
