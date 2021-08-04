@@ -34,7 +34,7 @@ gcloud compute networks subnets create proxy-only-subnet \
 --range=10.129.0.0/23
 ```
 
-* Configuring firewall rules
+* #### Configuring firewall rules
 
 ```
 gcloud compute firewall-rules create fw-allow-ssh \
@@ -70,7 +70,7 @@ gcloud compute firewall-rules create fw-allow-proxies \
 
 
 1. 
-* Making buckets for tomcat and nginx through gsutil. 
+* #### Making buckets for tomcat and nginx through gsutil. 
 
 ```
 gsutil mb gs://tomcat-bucket1
@@ -84,13 +84,13 @@ gsutil mb gs://nginx-bucket12
 gsutil cp 101.png gs://nginx-bucket12
 ```
 
-* Make Public access for nginx-bucket12
+* #### Make Public access for nginx-bucket12
 ```
 gsutil iam ch allUsers:objectViewer gs://nginx-bucket12
 ```
 
 2. 
-* Create instance template for tomcat MIG with startup script from bucket. (used startup-tomcat.sh file in repo)
+* #### Create instance template for tomcat MIG with startup script from bucket. (used startup-tomcat.sh file in repo)
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-1 \
@@ -106,7 +106,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --boot-disk-type=pd-balanced
 ```
 
-* Create Managed Instance Group from tomcat 
+* #### Create Managed Instance Group from tomcat 
 
 ```
 gcloud compute --project "tomcat-nginx-lb" health-checks create http "tomcat-health-check" \
@@ -134,9 +134,9 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 ```
 
 3. 
-* Making Internal LB for tomcat MIG
+* #### Making Internal LB for tomcat MIG
 
-* Health check for tomcat MIG
+* #### Health check for tomcat MIG
 
 ```
 gcloud compute health-checks create http tomcat-mig-check \
@@ -144,7 +144,7 @@ gcloud compute health-checks create http tomcat-mig-check \
 --port "8080" 
 ```
 
-* Backend Service
+* #### Backend Service
 
 ```
 gcloud compute backend-services create tomcat-backend-service \
@@ -154,7 +154,7 @@ gcloud compute backend-services create tomcat-backend-service \
 --health-checks-region=us-west1 \
 --region=us-west1
 ```
-* Add backends to backend service
+* #### Add backends to backend service
 
 ```
 gcloud compute backend-services add-backend tomcat-backend-service \
@@ -164,7 +164,7 @@ gcloud compute backend-services add-backend tomcat-backend-service \
 --region=us-west1
 ```
 
-* URL map (will lb name)
+* #### URL map (will lb name)
 
 ```
 gcloud compute url-maps create tomcat-int-lb \
@@ -172,7 +172,7 @@ gcloud compute url-maps create tomcat-int-lb \
 --region=us-west1
 ```
 
-* Target proxy
+* #### Target proxy
 
 ```
 gcloud compute target-http-proxies create tomcat-lb-proxy \
@@ -181,7 +181,7 @@ gcloud compute target-http-proxies create tomcat-lb-proxy \
 --region=us-west1
 ```
 
-* Forwarding rule 
+* #### Forwarding rule 
 
 ```
 gcloud compute forwarding-rules create tomcat-forwarding-rule \
@@ -196,7 +196,7 @@ gcloud compute forwarding-rules create tomcat-forwarding-rule \
 ```
 
 4. 
-* Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
+* #### Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create nginx-template-1 \
@@ -211,7 +211,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create nginx-te
 --boot-disk-type=pd-balanced
 ```
 
-* Create Managed Instance Group from Nginx
+* #### Create Managed Instance Group from Nginx
 
 ```
 gcloud compute --project "tomcat-nginx-lb" health-checks create http "nginx-health-check" \
@@ -238,9 +238,9 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 ```
 
 5. 
-* Extarnal LB for Nginx MIG
+* #### Extarnal LB for Nginx MIG
 
-* Named port
+* #### Named port
 
 ```
 gcloud compute instance-groups set-named-ports instance-group-nginx \
@@ -248,7 +248,7 @@ gcloud compute instance-groups set-named-ports instance-group-nginx \
     --zone us-west1-a
 ```
 
-* firewall rule
+* #### Firewall rule
 
 ```
 gcloud compute firewall-rules create fw-allow-health-check \
@@ -260,7 +260,7 @@ gcloud compute firewall-rules create fw-allow-health-check \
     --rules=tcp:80
 ```
 
-* Reserving an external IP address
+* #### Reserving an external IP address
 
 ```
 gcloud compute addresses create lb-ipv4-1 \
@@ -274,14 +274,14 @@ gcloud compute addresses describe lb-ipv4-1 \
     --global
 ```
 
-* Health check for tomcat MIG LB
+* #### Health check for tomcat MIG LB
 
 ```
 gcloud compute health-checks create http nginx-mig-check \
 --port 80
 ```
 
-* Backend service
+* #### Backend service
 
 ```
 gcloud compute backend-services create nginx-backend-service \
@@ -291,7 +291,7 @@ gcloud compute backend-services create nginx-backend-service \
     --global
 ```
 
-* Add MIG to Backend service
+* #### Add MIG to Backend service
 
 ```
 gcloud compute backend-services add-backend nginx-backend-service \
@@ -300,21 +300,21 @@ gcloud compute backend-services add-backend nginx-backend-service \
     --global
 ```
 
-* URL map (wil be LB name)
+* #### URL map (wil be LB name)
 
 ```
 gcloud compute url-maps create ext-nginx-lb \
 --default-service nginx-backend-service
 ```
 
-* HTTP proxy
+* #### HTTP proxy
 
 ``` 
 gcloud compute target-http-proxies create http-lb-proxy \
 --url-map=ext-nginx-lb
 ```
 
-* Forwarding rules
+* #### Forwarding rules
 
 ```
 gcloud compute forwarding-rules create http-content-rule \
