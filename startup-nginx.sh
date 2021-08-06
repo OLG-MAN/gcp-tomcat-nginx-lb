@@ -6,37 +6,10 @@ apt update
 apt install -y nginx
 systemctl enable nginx
 
+
 # Configure /etc/nginx/sites-available/default file
-cat << EOF > /etc/nginx/sites-available/default
-server {
-    listen 80;
-        
-    root /var/www/html;
-
-    index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-
-    location /tomcat/ {
-        proxy_pass 'http://10.1.2.99:8080/';
-        proxy_http_version 1.1;
-    }
-
-    location /demo/ {
-        proxy_pass 'http://10.1.2.99:8080/sample/';
-        proxy_http_version 1.1;
-    }
-
-    location /img {
-        proxy_pass 'https://storage.googleapis.com/nginx-bucket12/101.png';
-    }
-}
-EOF
-systemctl restart nginx
+gsutil cp gs://nginx-bucket1/default /etc/nginx/sites-available
+service nginx restart
 
 
 # Change content on nginx main page.
@@ -56,6 +29,7 @@ systemctl restart nginx
 curl -L https://toolbelt.treasuredata.com/sh/install-debian-buster-td-agent4.sh | sh
 usermod -aG adm td-agent
 /usr/sbin/td-agent-gem install fluent-plugin-bigquery
+
 
 # Configure .conf file
 cat << EOF >> /etc/td-agent/td-agent.conf
@@ -88,7 +62,7 @@ cat << EOF >> /etc/td-agent/td-agent.conf
   </inject>
 </match>
 EOF
-systemctl restart td-agent
+service td-agent restart
 HERE
 
 # Install fluentd agent option 2

@@ -202,9 +202,9 @@ gcloud compute forwarding-rules create tomcat-forwarding-rule \
 * #### Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
 
 ```
-gcloud beta compute --project=tomcat-nginx-lb instance-templates create nginx-template-1 \
+gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-nginx-1 \
 --machine-type=e2-medium \
---network=projects/tomcat-nginx-lb/global/networks/lb-network \
+--subnet=projects/tomcat-nginx-lb/regions/us-west1/subnetworks/backend-subnet \
 --network-tier=PREMIUM \
 --metadata=startup-script-url=gs://nginx-bucket1/startup-nginx.sh \
 --tags=allow-http,allow-ssh \
@@ -230,7 +230,7 @@ gcloud compute --project=tomcat-nginx-lb instance-groups managed create instance
 --template=instance-template-nginx-1 \
 --size=1 \
 --zone=us-west1-a \
---health-check=tomcat-health-check
+--health-check=nginx-health-check
 
 
 gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-nginx-1" \
@@ -248,21 +248,9 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 * #### Named port
 
 ```
-gcloud compute instance-groups set-named-ports instance-group-nginx \
+gcloud compute instance-groups set-named-ports instance-group-nginx-1 \
 --named-ports http:80 \
 --zone us-west1-a
-```
-
-* #### Firewall rule
-
-```
-gcloud compute firewall-rules create fw-allow-health-check \
---network=default \
---action=allow \
---direction=ingress \
---source-ranges=130.211.0.0/22,35.191.0.0/16 \
---target-tags=allow-health-check \
---rules=tcp:80
 ```
 
 * #### Reserving an external IP address
@@ -329,10 +317,35 @@ gcloud compute forwarding-rules create http-content-rule \
 --ports=80
 ```
 
+### Summary
+
+- We can go to external LB what redirected us on Nginx MiG. On main page we can find Nginx Frontend page with data 
+```
+This is Frontend
+
+instance-group-nginx-1-q0l2
+instance-group-nginx-1-q0l2.us-west1-a.c.tomcat-nginx-lb.internal
+ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (US), The Dalles
+```
+- Nginx MIG configured wit Nginx internal LB what redirected to tomcat MIG through GCP internal LB IP address. 
+
+- If we go to <external-LB-IP>/tomcat we being redirect to backend with tomcat admin main page.
+
+- If we go to <external-LB-IP>/demo we being redirect to backend with tomcat sample app what pre-installed in startup script.
+
+- If we go to <external-LB-IP>/img we being redirect to backend bucket with particular image.
+
 --------------------------------------------------
 
 6. Analyzing logs, Fluentd and BigQuery
 
-Using this official guide 
+* #### Fluentd
 
-https://cloud.google.com/architecture/fluentd-bigquery
+- Agent already pre-installed and configured in startup-nginx.sh
+
+* #### Configure BigQuery
+
+- 
+
+References
+- https://cloud.google.com/architecture/fluentd-bigquery
