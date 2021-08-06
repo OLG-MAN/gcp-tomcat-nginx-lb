@@ -338,6 +338,7 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 --------------------------------------------------
 
 6. Analyzing logs, Fluentd and BigQuery
+(Important, when creating templates give access anabled to BigQuey API)
 
 * #### Fluentd
 
@@ -345,7 +346,38 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 * #### Configure BigQuery
 
-- 
+- Configure Bigquery dataset and table like in Guide.
 
 References
 - https://cloud.google.com/architecture/fluentd-bigquery
+
+* #### Simulating load and calculating statistics from the logs
+
+- Install the ApacheBench (ab) web server benchmarking tool.
+```
+sudo apt install -y apache2-utils
+
+ab -t 20 -c 1 http://[IP_ADDRESS]/
+```
+
+- Get a list of ApacheBench requests using the following query in the Query Editor.
+
+```
+SELECT * FROM `fluentd.nginx_access` limit 100
+```
+
+```
+SELECT
+  time_sec, code, COUNT(*) as count
+FROM (
+  SELECT
+    TIMESTAMP_TRUNC(time, SECOND)AS time_sec, code
+  FROM
+    `fluentd.nginx_access`)
+GROUP BY
+  time_sec, code
+ORDER BY
+  time_sec DESC
+```
+
+-----------------------------------
