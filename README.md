@@ -97,7 +97,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --machine-type=e2-medium \
 --subnet=projects/tomcat-nginx-lb/regions/us-west1/subnetworks/backend-subnet \
 --network-tier=PREMIUM \
---metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh
+--metadata=startup-script-url=gs://tomcat-bucket1/startup-tomcat.sh \
 --region=us-west1 \
 --tags=allow-ssh,allow-http \
 --image=debian-10-buster-v20210721 \
@@ -106,7 +106,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --boot-disk-type=pd-balanced
 ```
 
-* #### Create Managed Instance Group from tomcat 
+* #### Create Managed Instance Group from tomcat instance template
 
 ```
 gcloud compute --project "tomcat-nginx-lb" health-checks create http "tomcat-health-check" \
@@ -120,9 +120,10 @@ gcloud compute --project "tomcat-nginx-lb" health-checks create http "tomcat-hea
 gcloud beta compute --project=tomcat-nginx-lb instance-groups managed create instance-group-tomcat-1 \
 --base-instance-name=instance-group-tomcat-1 \
 --template=instance-template-tomcat-1 \
---size=1 --zone=us-west1-b \
---health-check=tomcat-healt-check \
---initial-delay=300
+--size=1 \
+--zone=us-west1-b \
+--health-check=tomcat-health-check
+
 
 gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-tomcat-1" \
 --zone "us-west1-b" \
@@ -141,7 +142,7 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 ```
 gcloud compute health-checks create http tomcat-mig-check \
 --region=us-west1 \
---port "8080" 
+--port 8080 
 ```
 
 * #### Backend Service
@@ -159,10 +160,12 @@ gcloud compute backend-services create tomcat-backend-service \
 ```
 gcloud compute backend-services add-backend tomcat-backend-service \
 --balancing-mode=UTILIZATION \
+--max-utilization=0.8 \
 --instance-group=instance-group-tomcat-1 \
 --instance-group-zone=us-west1-b \
 --region=us-west1
 ```
+(After creating and adding backend service, need change port from 80 to 8080 manually)
 
 * #### URL map (will lb name)
 
@@ -226,7 +229,9 @@ gcloud compute --project=tomcat-nginx-lb instance-groups managed create instance
 --base-instance-name=instance-group-nginx-1 \
 --template=instance-template-nginx-1 \
 --size=1 \
---zone=us-west1-a
+--zone=us-west1-a \
+--health-check=tomcat-health-check
+
 
 gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-autoscaling "instance-group-nginx-1" \
 --zone "us-west1-a" \
@@ -244,34 +249,34 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 
 ```
 gcloud compute instance-groups set-named-ports instance-group-nginx \
-    --named-ports http:80 \
-    --zone us-west1-a
+--named-ports http:80 \
+--zone us-west1-a
 ```
 
 * #### Firewall rule
 
 ```
 gcloud compute firewall-rules create fw-allow-health-check \
-    --network=default \
-    --action=allow \
-    --direction=ingress \
-    --source-ranges=130.211.0.0/22,35.191.0.0/16 \
-    --target-tags=allow-health-check \
-    --rules=tcp:80
+--network=default \
+--action=allow \
+--direction=ingress \
+--source-ranges=130.211.0.0/22,35.191.0.0/16 \
+--target-tags=allow-health-check \
+--rules=tcp:80
 ```
 
 * #### Reserving an external IP address
 
 ```
 gcloud compute addresses create lb-ipv4-1 \
-    --ip-version=IPV4 \
-    --global
+--ip-version=IPV4 \
+--global
 ```
 And describe IP
 ```
 gcloud compute addresses describe lb-ipv4-1 \
-    --format="get(address)" \
-    --global
+--format="get(address)" \
+--global
 ```
 
 * #### Health check for tomcat MIG LB
@@ -285,19 +290,19 @@ gcloud compute health-checks create http nginx-mig-check \
 
 ```
 gcloud compute backend-services create nginx-backend-service \
-    --protocol=HTTP \
-    --port-name=http \
-    --health-checks=nginx-mig-check \
-    --global
+--protocol=HTTP \
+--port-name=http \
+--health-checks=nginx-mig-check \
+--global
 ```
 
 * #### Add MIG to Backend service
 
 ```
 gcloud compute backend-services add-backend nginx-backend-service \
-    --instance-group=instance-group-nginx \
-    --instance-group-zone=us-west1-a \
-    --global
+--instance-group=instance-group-nginx-1 \
+--instance-group-zone=us-west1-a \
+--global
 ```
 
 * #### URL map (wil be LB name)
