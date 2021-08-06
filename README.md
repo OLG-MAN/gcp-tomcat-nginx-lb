@@ -346,7 +346,48 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 * #### Configure BigQuery
 
-- Configure Bigquery dataset and table like in Guide.
+- Configure Bigquery dataset and table.
+
+```
+- Open the BigQuery web UI:
+
+- Go to the BigQuery Web UI
+
+- In the navigation panel, under Resources, click your project name.
+
+- In the details panel below the Query Editor, click Create Dataset.
+
+- For Dataset ID, enter fluentd.
+
+- For Data Location, select the multiregional location (US or Europe) where you created the NGINX instance.
+
+Click Create Dataset.
+
+- In the navigation panel, under Resources, click the fluentd dataset.
+
+- In the details panel below the Query Editor, click Create Table.
+
+- For the table name, enter nginx_access.
+
+- Select the Edit as Text option.
+
+- Copy the following JSON column definition into the text box.
+
+```
+
+```
+[  { "type": "TIMESTAMP", "name": "time" },
+   { "type": "STRING",    "name": "remote" },
+   { "type": "STRING",    "name": "host" },
+   { "type": "STRING",    "name": "user" },
+   { "type": "STRING",    "name": "method" },
+   { "type": "STRING",    "name": "path" },
+   { "type": "STRING",    "name": "code" },
+   { "type": "INTEGER",   "name": "size" },
+   { "type": "STRING",    "name": "referer" },
+   { "type": "STRING",    "name": "agent" },
+   { "type": "STRING",    "name": "http_x_forwarded_for" } ]
+```
 
 References
 - https://cloud.google.com/architecture/fluentd-bigquery
