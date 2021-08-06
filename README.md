@@ -327,7 +327,7 @@ instance-group-nginx-1-q0l2
 instance-group-nginx-1-q0l2.us-west1-a.c.tomcat-nginx-lb.internal
 ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (US), The Dalles
 ```
-- Nginx MIG configured wit Nginx internal LB what redirected to tomcat MIG through GCP internal LB IP address. 
+- Nginx MIG configured with Nginx internal LB what redirected to tomcat MIG through GCP internal LB IP address. 
 
 - If we go to <external-LB-IP>/tomcat we being redirect to backend with tomcat admin main page.
 
@@ -361,7 +361,7 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 - For Data Location, select the multiregional location (US or Europe) where you created the NGINX instance.
 
-Click Create Dataset.
+- Click Create Dataset.
 
 - In the navigation panel, under Resources, click the fluentd dataset.
 
