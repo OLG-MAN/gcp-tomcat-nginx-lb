@@ -438,7 +438,7 @@ ORDER BY
 ### 1. 
 * ### Make logs export flow like in image. 
 
-- From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Elastic Deployment.
+- ### From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Cloud Elastic Deployment.
 
 ![](img/5.png)
 
