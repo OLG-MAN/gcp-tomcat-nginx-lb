@@ -470,10 +470,10 @@ gcloud compute instance-groups managed rolling-action start-update instance-grou
     --zone=us-west1-b
 ```
 
-* ![](imag/1.png)
+* ![](img/1.png)
 
-* ![](imag/2.png)
+* ![](img/2.png)
 
-* ![](imag/3.png)
+* ![](img/3.png)
 
-* ![](imag/4png)
+* ![](img/4.png)
