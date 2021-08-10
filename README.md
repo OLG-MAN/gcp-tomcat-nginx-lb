@@ -469,11 +469,18 @@ gcloud compute instance-groups managed rolling-action start-update instance-grou
     --max-unavailable=1 \
     --zone=us-west1-b
 ```
+* Previos version
 
-* ![](img/1.png)
+![](img/1.png)
 
-* ![](img/2.png)
+* Update 1
 
-* ![](img/3.png)
+![](img/2.png)
 
-* ![](img/4.png)
+* Update 2
+
+![](img/3.png)
+
+* Done 
+
+![](img/4.png)
