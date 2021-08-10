@@ -1,6 +1,8 @@
-## Tomcat(backend) and Nginx(frontend) in MIGs with LB.
+## Task 1
+[TASK 2](https://github.com/OLG-MAN/tomcat-nginx-lb#Task%2)
+### Tomcat(backend) and Nginx(frontend) in MIGs with LB.
 
-## Task goals
+### Task goals
 
 1. Create bucket for Tomcat application files and another one for static web files (think about permissions).
 2. Create MIG for backend with installed tomcat and on boot download demo application from bucket. Setup autoscaling by CPU (think about scale down).
@@ -423,7 +425,7 @@ ORDER BY
 
 -----------------------------------
 
-## GCP tasks. Part 2
+## Task 2
 
 ### Goals
 
