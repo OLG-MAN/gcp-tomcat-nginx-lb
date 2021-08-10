@@ -506,11 +506,11 @@ https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
 
 
 ### 2. 
-* #### Make startup script with installed and configured tomcat on CentOS image.
+* ### Make startup script with installed and configured tomcat on CentOS image.
 
 - startup script in startup-tomcat-centos.sh file
 
-* #### Make instance template for tomcat on CentOS
+* ### Make instance template for tomcat on CentOS
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-centos-1 \
@@ -526,7 +526,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --boot-disk-type=pd-balanced
 ```
 
-* #### Update MIG VM's 
+* ### Update MIG VM's 
 
 - Update already working MIG instance-group-tomcat-1 with max oversize instance=1 and max unavailable instance=1.
 
@@ -537,18 +537,18 @@ gcloud compute instance-groups managed rolling-action start-update instance-grou
     --max-unavailable=1 \
     --zone=us-west1-b
 ```
-* Previos version
+* ### Previos version
 
 ![](img/1.png)
 
-* Update 1
+* ### Update 1
 
 ![](img/2.png)
 
-* Update 2
+* ### Update 2
 
 ![](img/3.png)
 
-* Done 
+* ### Done 
 
 ![](img/4.png)
