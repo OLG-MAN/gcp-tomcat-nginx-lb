@@ -422,3 +422,58 @@ ORDER BY
 ```
 
 -----------------------------------
+
+## GCP tasks. Part 2
+
+### Goals
+
+1. Instal and configure Filebeat agent on MIGs to logs export.
+2. MIG rolling update with changing template OS (Debian to centOS) on tomcat backend.
+3. Configure internal LB that he return traffic only if target host return http 2xx code.
+4. Make Pub/Sub example export.
+
+1. 
+* #### Make startup script with installed and configured Filebeat agent on Nginx templates.
+
+- startup script in startup-nginx-filebeat.sh file (not ready yet)
+
+2. 
+* #### Make startup script with installed and configured tomcat on CentOS image.
+
+- startup script in startup-tomcat-centos.sh file
+
+* #### Make instance template for tomcat on CentOS
+
+```
+gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-centos-1 \
+--machine-type=e2-medium \
+--subnet=projects/tomcat-nginx-lb/regions/us-west1/subnetworks/backend-subnet \
+--network-tier=PREMIUM \
+--metadata=startup-script-url=gs://tomcat-bucket-centos/startup-tomcat-centos.sh \
+--region=us-west1 \
+--tags=allow-ssh,allow-http \
+--image=centos-8-v20210721 \
+--image-project=centos-cloud \
+--boot-disk-size=20GB \
+--boot-disk-type=pd-balanced
+```
+
+* #### Update MIG VM's 
+
+- Update already working MIG instance-group-tomcat-1 with max oversize instance=1 and max unavailable instance=1.
+
+```
+gcloud compute instance-groups managed rolling-action start-update instance-group-tomcat-1 \
+    --version=template=instance-template-tomcat-1 \
+    --max-surge=1 \
+    --max-unavailable=1 \
+    --zone=us-west1-b
+```
+
+* ![](imag/1.png)
+
+* ![](imag/2.png)
+
+* ![](imag/3.png)
+
+* ![](imag/4png)

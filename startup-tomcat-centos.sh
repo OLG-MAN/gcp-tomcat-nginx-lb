@@ -2,9 +2,7 @@
 
 # Install java and tomcat, configure user for tomcat
 sudo su <<HERE
-apt update
-apt install wget -y
-apt install default-jdk -y
+yum install -y java curl tar wget 
 useradd -m -U -d /opt/tomcat -s /bin/false tomcat
 wget https://downloads.apache.org/tomcat/tomcat-10/v10.0.10/bin/apache-tomcat-10.0.10.tar.gz
 tar -zxvf apache-tomcat-*.tar.gz -C /opt/tomcat --strip-components=1
@@ -22,7 +20,7 @@ After=network.target
 [Service]
 Type=forking
 
-Environment=JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64/
+Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.302.b08-0.el8_4.x86_64/jre
 Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
 Environment=CATALINA_HOME=/opt/tomcat
 Environment='CATALINA_OPTS=-Xms512M -Xmx1G -Djava.net.preferIPv4Stack=true'

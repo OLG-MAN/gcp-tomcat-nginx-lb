@@ -12,7 +12,7 @@ gsutil cp gs://nginx-bucket1/default /etc/nginx/sites-available
 service nginx restart
 
 
-# Change content on nginx main page.
+# Change content on Nginx main page.
 chmod 755 /var/www/html/index.nginx-debian.html
 echo '<h1>' > /var/www/html/index.nginx-debian.html
 echo '<p>This is Frontend</p>' >> /var/www/html/index.nginx-debian.html
