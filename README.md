@@ -457,12 +457,13 @@ logName="projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Factivity" OR
 resource.type:"gce" OR resource.type="gcs_bucket" OR resource.type="bigquery_resource"
 ```
 
+- Set IAM policy permissions for the Pub/Sub topic
+Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Publisher permissions, it grant the service account permission to publish to the topic.
+
 - Check that the topic is receiving messages by using the Metrics Explorer in Cloud Monitoring.
 
 ![](img/8.png)
 
-- Set IAM policy permissions for the Pub/Sub topic
-Create Service account to Pub/Sub topic with the Pub/Sub Publisher permissions, you grant the service account permission to publish to the topic.
 
 - Create Elastic Cloud Deployment for connect with Filebeat and monitor logs.
 
