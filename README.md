@@ -440,15 +440,15 @@ ORDER BY
 
 ![](img/5.png)
 
-- Set up a Pub/Sub topic and subscriiption.
+- ### Set up a Pub/Sub topic and subscriiption.
 
 ![](img/6.png)
 
-- Turn on audit logging for all services.
+- ### Turn on audit logging for all services.
 
 ![](img/7.png)
 
-- Create a Sink service. Use this filter below.
+- ### Create a Sink service. Use this filter below.
 
 ```
 logName="projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Factivity" OR
@@ -457,10 +457,10 @@ logName="projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Factivity" OR
 resource.type:"gce" OR resource.type="gcs_bucket" OR resource.type="bigquery_resource"
 ```
 
-- Set IAM policy permissions for the Pub/Sub topic
+- ### Set IAM policy permissions for the Pub/Sub topic
 Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Publisher permissions, it grant the service account permission to publish to the topic.
 
-- Check that the topic is receiving messages by using the Metrics Explorer in Cloud Monitoring.
+- ### Check that the topic is receiving messages by using the Metrics Explorer in Cloud Monitoring.
 
 ![](img/8.png)
 
@@ -471,7 +471,7 @@ Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Pu
 
 ![](img/10.png)
 
-- Install and configure Filebeat on target host. Connect with elastic Cloud deployment.
+- ### Install and configure Filebeat on target host. Connect with elastic Cloud deployment.
 
 ```
 # Install on CentOS
@@ -489,13 +489,13 @@ sudo filebeat setup
 sudo service filebeat start
 ```
 
-- Monitring Dashboard with system and nginx modules. 
+- ### Monitring Dashboard with system and nginx modules. 
 
 ![](img/11.png)
 
 ![](img/12.png)
 
-* References 
+* ### References 
 
 https://cloud.google.com/architecture/exporting-stackdriver-logging-elasticsearch
 
