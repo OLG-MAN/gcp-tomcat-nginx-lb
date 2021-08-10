@@ -427,16 +427,80 @@ ORDER BY
 
 ### Goals
 
-1. Instal and configure Filebeat agent on MIGs to logs export.
+1. Install and configure Filebeat agent on MIGs for logs export.
 2. MIG rolling update with changing template OS (Debian to centOS) on tomcat backend.
 3. Configure internal LB that he return traffic only if target host return http 2xx code.
 4. Make Pub/Sub example export.
 
 #### Solution
 1. 
-* #### Make startup script with installed and configured Filebeat agent on Nginx templates.
+* #### Make logs export flow like in image. 
 
-- startup script in startup-nginx-filebeat.sh file (not ready yet)
+- From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Elastic Deployment.
+
+![](img/5.png)
+
+- Set up a Pub/Sub topic and subscriiption.
+
+![](img/6.png)
+
+- Turn on audit logging for all services.
+
+![](img/7.png)
+
+- Create a Sink service. Use this filter below.
+
+```
+logName="projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Factivity" OR
+"projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Fdata_access" OR
+"projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Fsystem_event" OR
+resource.type:"gce" OR resource.type="gcs_bucket" OR resource.type="bigquery_resource"
+```
+
+- Check that the topic is receiving messages by using the Metrics Explorer in Cloud Monitoring.
+
+![](img/8.png)
+
+- Set IAM policy permissions for the Pub/Sub topic
+Create Service account to Pub/Sub topic with the Pub/Sub Publisher permissions, you grant the service account permission to publish to the topic.
+
+- Create Elastic Cloud Deployment for connect with Filebeat and monitor logs.
+
+![](img/9.png)
+
+![](img/10.png)
+
+- Install and configure Filebeat on target host. Connect with elastic Cloud deployment.
+
+```
+# Install on CentOS
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.14.0-x86_64.rpm
+sudo rpm -vi filebeat-7.14.0-x86_64.rpm
+
+# Modify this string in /etc/filebeat/filebeat.yml to set the connection information for Elastic Cloud:
+cloud.id: "i-o-optimized-deployment:<UID>"
+cloud.auth: "elastic:<password>"
+
+sudo filebeat modules enable system
+sudo filebeat modules enable nginx
+
+sudo filebeat setup
+sudo service filebeat start
+```
+
+- Monitring Dashboard with system and nginx modules. 
+
+![](img/11.png)
+
+![](img/12.png)
+
+* References 
+
+https://cloud.google.com/architecture/exporting-stackdriver-logging-elasticsearch
+
+https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
+
+
 
 2. 
 * #### Make startup script with installed and configured tomcat on CentOS image.
