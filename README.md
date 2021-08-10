@@ -433,7 +433,7 @@ ORDER BY
 4. Make Pub/Sub example export.
 
 ### Solution
-1. 
+### 1. 
 * ### Make logs export flow like in image. 
 
 - From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Elastic Deployment.
@@ -465,7 +465,7 @@ Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Pu
 ![](img/8.png)
 
 
-- Create Elastic Cloud Deployment for connect with Filebeat and monitor logs.
+- ### Create Elastic Cloud Deployment for connect with Filebeat and monitor logs.
 
 ![](img/9.png)
 
@@ -502,8 +502,10 @@ https://cloud.google.com/architecture/exporting-stackdriver-logging-elasticsearc
 https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
 
 
+----------------------------------------------------
 
-2. 
+
+### 2. 
 * #### Make startup script with installed and configured tomcat on CentOS image.
 
 - startup script in startup-tomcat-centos.sh file
