@@ -1,5 +1,5 @@
 ## Task 1
-[TASK 2](https://github.com/OLG-MAN/tomcat-nginx-lb#Task%2)
+### [TASK 2](https://github.com/OLG-MAN/tomcat-nginx-lb#Task_2)
 ### Tomcat(backend) and Nginx(frontend) in MIGs with LB.
 
 ### Task goals
@@ -425,7 +425,7 @@ ORDER BY
 
 -----------------------------------
 
-## Task 2
+## Task_2
 
 ### Goals
 
