@@ -432,6 +432,7 @@ ORDER BY
 3. Configure internal LB that he return traffic only if target host return http 2xx code.
 4. Make Pub/Sub example export.
 
+#### Solution
 1. 
 * #### Make startup script with installed and configured Filebeat agent on Nginx templates.
 
