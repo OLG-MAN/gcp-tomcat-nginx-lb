@@ -432,9 +432,9 @@ ORDER BY
 3. Configure internal LB that he return traffic only if target host return http 2xx code.
 4. Make Pub/Sub example export.
 
-#### Solution
+### Solution
 1. 
-* #### Make logs export flow like in image. 
+* ### Make logs export flow like in image. 
 
 - From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Elastic Deployment.
 
