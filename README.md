@@ -534,7 +534,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 
 ```
 gcloud compute instance-groups managed rolling-action start-update instance-group-tomcat-1 \
-    --version=template=instance-template-tomcat-1 \
+    --version=template=instance-template-tomcat-centos-1 \
     --max-surge=1 \
     --max-unavailable=1 \
     --zone=us-west1-b
