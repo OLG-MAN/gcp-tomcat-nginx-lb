@@ -26,7 +26,15 @@ systemctl restart nginx
 
 
 # Install Filebeat agent for logs exporting.
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.14.0-amd64.deb
+sudo dpkg -i filebeat-7.14.0-amd64.deb
 
+# Copy prepared configuration file
+gsutil cp gs://nginx-bucket1/filebeat.yml /etc/filebeat/
 
-
+# Enable modules and start agent
+filebeat modules enable system
+filebeat modules enable nginx
+filebeat setup
+service filebeat start
 HERE

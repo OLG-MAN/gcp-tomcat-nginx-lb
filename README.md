@@ -432,7 +432,6 @@ ORDER BY
 1. Install and configure Filebeat agent on MIGs for logs export.
 2. MIG rolling update with changing template OS (Debian to centOS) on tomcat backend.
 3. Configure internal LB that he return traffic only if target host return http 2xx code.
-4. Make Pub/Sub example export.
 
 ### Solution
 ### 1. 
@@ -476,7 +475,7 @@ Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Pu
 - ### Install and configure Filebeat on target host. Connect with elastic Cloud deployment.
 
 ```
-# Install on CentOS
+# Install on CentOS. Full script in startup-nginx-centos.sh
 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.14.0-x86_64.rpm
 sudo rpm -vi filebeat-7.14.0-x86_64.rpm
 
@@ -557,3 +556,14 @@ gcloud compute instance-groups managed rolling-action start-update instance-grou
 
 ------------------------------------------
 
+### 3. 
+
+* ### Make health-check for internal LB for tomcat backend service checking.
+
+```
+gcloud compute health-checks create http tomcat-lb-check \
+--region=us-west1 \
+--port 8080
+```
+
+------------------------------------------

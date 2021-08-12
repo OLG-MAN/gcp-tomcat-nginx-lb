@@ -19,7 +19,16 @@ curl 2ip.me >> /usr/share/nginx/html/index.html
 echo '</h1>' >> /usr/share/nginx/html/index.html
 systemctl restart nginx
 
-#Install and Configure Filebeat agent
+# Install and Configure Filebeat agent
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.14.0-x86_64.rpm
+sudo rpm -vi filebeat-7.14.0-x86_64.rpm
 
+# Copy prepared configuration file
+gsutil cp gs://nginx-bucket1/filebeat.yml /etc/filebeat/
 
+# Enable modules and start agent
+filebeat modules enable system
+filebeat modules enable nginx
+filebeat setup
+service filebeat start
 HERE
