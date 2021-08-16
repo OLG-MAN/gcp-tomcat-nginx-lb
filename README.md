@@ -606,7 +606,17 @@ gcloud pubsub topics create function-topic
 
 -------------------------------------------------------
 
-### 2. - 3.
+### 2.
+
+* ### Configure Cloud scheduler that function run every hour and show logs for last hour.
+
+(not ready yet)
+
+-------------------------------------------------------
+
+
+### 3.
+
 * ### Prepare VM with Nginx and fluentd. 
 
 ```
@@ -656,8 +666,5 @@ def hello_world(request):
 
 ![](img/19.png)
 
-* ### Configure Cloud scheduler that function run every hour and show logs for last hour.
-
-(not ready yet)
 
 -------------------------------------
