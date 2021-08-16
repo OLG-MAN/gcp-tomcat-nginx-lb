@@ -1,5 +1,6 @@
 ## Task 1
 ### [TASK 2](https://github.com/OLG-MAN/tomcat-nginx-lb#Task_2)
+### [TASK 3](https://github.com/OLG-MAN/tomcat-nginx-lb#Task_3)
 ### Tomcat(backend) and Nginx(frontend) in MIGs with LB.
 
 ### Task goals
@@ -394,6 +395,8 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 References
 - https://cloud.google.com/architecture/fluentd-bigquery
 
+--------------------------------------------
+
 * #### Simulating load and calculating statistics from the logs
 
 - Install the ApacheBench (ab) web server benchmarking tool.
@@ -434,6 +437,7 @@ ORDER BY
 3. Configure internal LB that he return traffic only if target host return http 2xx code.
 
 ### Solution
+
 ### 1. 
 * ### Make logs export flow like in image. 
 
@@ -529,7 +533,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 
 * ### Update MIG VM's 
 
-- Update already working MIG instance-group-tomcat-1 with max oversize instance=1 and max unavailable instance=1.
+- Update already working MIG instance-group-tomcat-1 with max autoscale oversize instance=1 and max unavailable instance=1.
 
 ```
 gcloud compute instance-groups managed rolling-action start-update instance-group-tomcat-1 \
@@ -567,3 +571,93 @@ gcloud compute health-checks create http tomcat-lb-check \
 ```
 
 ------------------------------------------
+
+## Task_3
+
+### Goals
+
+1. Create a python3 function that will run through Pub/Sub and print a message.
+2. Set this function to automatically start every hour.
+3. Function should connect to BigQuery dataset and display statistics of HTTP responses for the last hour.
+4. Create one more function that will run every time when Nginx have a '404' error and display the error message.
+
+### Solution
+
+### 1. 
+* ### Create Pub/Sub topic
+
+```
+gcloud pubsub topics create function-topic
+```
+
+* ### Create python function what print pub/sub message.
+
+![](img/13.png)
+
+![](img/14.png)
+
+* ### Publish message in Pub/Sub.
+
+![](img/15.png)
+
+* ### Check function 'print' in logs.
+
+![](img/16.png)
+
+-------------------------------------------------------
+
+### 2. - 3.
+* ### Prepare VM with Nginx and fluentd. 
+
+```
+# Statrtup script in startup-nginx.sh file 
+```
+* ### Configure Bigquery and log export.
+
+![](img/17.png)
+
+
+* ### Configure Service Account for Cloud Function
+
+```
+gcloud iam service-accounts create connect-to-bigquery
+gcloud projects add-iam-policy-binding <project-name> --member="serviceAccount:connect-to-bigquery@<project-name>.iam.gserviceaccount.com" --role="roles/owner"
+```
+
+* ### Create function to that connect to BigQuery and print Nginx access logs. (filter last 100 logs not last hour).
+
+![](img/18.png)
+
+```
+from google.cloud import bigquery
+
+def hello_world(request):
+
+  client = bigquery.Client()
+
+  query = (
+    'SELECT time, remote, host, code, path  FROM `fluentd.nginx_access` '
+    'WHERE time > CURRENT_TIMESTAMP() - interval 1 hour '
+    'ORDER BY time DESC '
+    'LIMIT 100')
+
+  query_job = client.query(query)
+
+  print("The query data: ")
+  for row in query_job:
+    print("time {}, remote {}, host {}, code {}, path {}".format(row[0],row[1], row[2], row[3], row[4]))
+
+  return f'The query run successfully'
+```
+
+![](img/20.png)
+
+* ### Check Nginx logs 
+
+![](img/19.png)
+
+* ### Configure Cloud scheduler that function run every hour and show logs for last hour.
+
+(not ready yet)
+
+-------------------------------------
