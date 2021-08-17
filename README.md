@@ -709,7 +709,7 @@ def hello_404():
     'SELECT * FROM `fluentd.nginx_access` '
     'WHERE code = "404" ' 
     'ORDER BY time DESC '
-    'LIMIT 1')
+    'LIMIT 10')
 
   query_job = client.query(query)
 
