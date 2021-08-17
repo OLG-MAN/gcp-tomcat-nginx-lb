@@ -631,7 +631,7 @@ gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
   --topic=function-topic --message-body="Every hour function startup"
 ```
 
-* ### Check fnction auto-start in logs (Change schedule to "every minutes" for clarity) 
+* ### Check function auto-start in logs (Change schedule to "every minutes" for clarity) 
   
 ![](img/21.png)
 
@@ -643,7 +643,7 @@ gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
 * ### Prepare VM with Nginx and fluentd. 
 
 ```
-# Statrtup script in startup-nginx.sh file 
+# Startup script in startup-nginx.sh file 
 ```
 * ### Configure Bigquery and log export.
 
@@ -701,7 +701,7 @@ def hello_world(request):
 ```
 from google.cloud import bigquery
 
-def hello_world_404(request):
+def hello_404():
 
   client = bigquery.Client()
 
@@ -718,18 +718,18 @@ def hello_world_404(request):
     print("time {}, remote {}, method {}, code {}, path {}".format(row[0], row[1], row[4], row[6], row[5]))
 
   return f'The query run successfully'
+
+hello_404()
 ```
-
-* ### Check logs 
-
-![](img/--.png)
 
 * ### Make 'every minute' cron job through cloud scheduler.
 
-![](img/--.png)
+gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
+--topic=error-404 --message-body="Every minutes 404 check"
 
-![](img/--.png)
+* ### Check logs 
 
+![](img/22.png)
 
 ### Option 2. Full-automatic 404-logs function.
 
