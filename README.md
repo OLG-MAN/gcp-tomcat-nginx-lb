@@ -11,7 +11,6 @@
 4. Add one more MIG for frontend with nginx, by path /demo/ show demo app from bucket, by path /img/picture.jpg show file from bucket.
 5. Create LB for tomcat and nginx.
 6. Setup export of nginx logs to bucket/BigQuery.
-7. Make SSL terination.
 
 ## Solution using Cloud Shell
 
@@ -71,8 +70,10 @@ gcloud compute firewall-rules create fw-allow-proxies \
 --rules=tcp:80,tcp:443,tcp:8080
 ```
 
+-----------------------------------------------------
 
 1. 
+
 * #### Making buckets for tomcat and nginx through gsutil. 
 
 ```
@@ -92,7 +93,10 @@ gsutil cp 101.png gs://nginx-bucket12
 gsutil iam ch allUsers:objectViewer gs://nginx-bucket12
 ```
 
+-------------------------------------------------------------
+
 2. 
+
 * #### Create instance template for tomcat MIG with startup script from bucket. (used startup-tomcat.sh file in repo)
 
 ```
@@ -136,8 +140,10 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 --target-cpu-utilization "0.8" \
 --mode "on"
 ```
+--------------------------------------------
 
 3. 
+
 * #### Making Internal LB for tomcat MIG
 
 * #### Health check for tomcat MIG
@@ -200,8 +206,10 @@ gcloud compute forwarding-rules create tomcat-forwarding-rule \
 --target-http-proxy=tomcat-lb-proxy \
 --target-http-proxy-region=us-west1
 ```
+------------------------------------------
 
 4. 
+
 * #### Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
 
 ```
@@ -245,7 +253,10 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 --mode "on"
 ```
 
+---------------------------------------------
+
 5. 
+
 * #### Extarnal LB for Nginx MIG
 
 * #### Named port
@@ -340,12 +351,12 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 --------------------------------------------------
 
-6. Analyzing logs, Fluentd and BigQuery
-(Important, when creating templates give access anabled to BigQuey API)
+6. ### Analyzing logs, Fluentd and BigQuery
 
 * #### Fluentd
 
 - Agent already pre-installed and configured in startup-nginx.sh
+- Important, when creating templates give 'access anabled' to BigQuey API
 
 * #### Configure BigQuery
 
@@ -397,16 +408,17 @@ References
 
 --------------------------------------------
 
-* #### Simulating load and calculating statistics from the logs
+* #### Simulating load and calculating statistics from the logs in Bigquery.
 
-- Install the ApacheBench (ab) web server benchmarking tool.
+- #### Install the ApacheBench (ab) web server benchmarking tool.
+
 ```
 sudo apt install -y apache2-utils
 
 ab -t 20 -c 1 http://[IP_ADDRESS]/
 ```
 
-- Get a list of ApacheBench requests using the following query in the Query Editor.
+  - #### Get a list of ApacheBench requests using the following sample queries in the Query Editor.
 
 ```
 SELECT * FROM `fluentd.nginx_access` limit 100
@@ -427,6 +439,7 @@ ORDER BY
 ```
 
 -----------------------------------
+
 
 ## Task_2
 
@@ -511,6 +524,7 @@ https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
 
 
 ### 2. 
+
 * ### Make startup script with installed and configured tomcat on CentOS image.
 
 - startup script in startup-tomcat-centos.sh file
@@ -537,10 +551,10 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 
 ```
 gcloud compute instance-groups managed rolling-action start-update instance-group-tomcat-1 \
-    --version=template=instance-template-tomcat-centos-1 \
-    --max-surge=1 \
-    --max-unavailable=1 \
-    --zone=us-west1-b
+--version=template=instance-template-tomcat-centos-1 \
+--max-surge=1 \
+--max-unavailable=1 \
+--zone=us-west1-b
 ```
 * ### Previous version
 
@@ -572,6 +586,7 @@ gcloud compute health-checks create http tomcat-lb-check \
 
 ------------------------------------------
 
+
 ## Task_3
 
 ### Goals
@@ -583,7 +598,8 @@ gcloud compute health-checks create http tomcat-lb-check \
 
 ### Solution
 
-### 1. 
+### 1. Create a python3 function that will run through Pub/Sub and print a message.
+
 * ### Create Pub/Sub topic
 
 ```
@@ -606,16 +622,23 @@ gcloud pubsub topics create function-topic
 
 -------------------------------------------------------
 
-### 2.
+### 2. Set this function to automatically start every hour.
 
 * ### Configure Cloud scheduler that function run every hour and show logs for last hour.
 
-(not ready yet)
+```
+gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
+  --topic=function-topic --message-body="Every hour function startup"
+```
+
+* ### Check fnction auto-start in logs (Change schedule to "every minutes" for clarity) 
+  
+![](img/21.png)
 
 -------------------------------------------------------
 
 
-### 3.
+### 3. Function should connect to BigQuery dataset and display statistics of HTTP responses for the last hour.
 
 * ### Prepare VM with Nginx and fluentd. 
 
@@ -668,3 +691,49 @@ def hello_world(request):
 
 
 -------------------------------------
+
+### 4. Create one more function that will run every time when Nginx have a '404' error and display the error message.
+
+### Option 1. Semi-automatic 404-logs function 
+
+* ### Create function what filter last 10 Nginx logs by code 404 and print it.
+
+```
+from google.cloud import bigquery
+
+def hello_world_404(request):
+
+  client = bigquery.Client()
+
+  query = (
+    'SELECT * FROM `fluentd.nginx_access` '
+    'WHERE code = "404" ' 
+    'ORDER BY time DESC '
+    'LIMIT 10')
+
+  query_job = client.query(query)
+
+  print("The query data: ")
+  for row in query_job:
+    print("time {}, remote {}, method {}, code {}, path {}".format(row[0], row[1], row[4], row[6], row[5]))
+
+  return f'The query run successfully'
+```
+
+* ### Check logs 
+
+![](img/--.png)
+
+* ### Make 'every minute' cron job through cloud scheduler.
+
+![](img/--.png)
+
+![](img/--.png)
+
+
+### Option 2. Full-automatic 404-logs function.
+
+* (Not ready yet..)
+
+
+-------------------------------------------
