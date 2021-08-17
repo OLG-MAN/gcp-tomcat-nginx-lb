@@ -724,8 +724,10 @@ hello_404()
 
 * ### Make 'every minute' cron job through cloud scheduler.
 
+```
 gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 --topic=error-404 --message-body="Every minutes 404 check"
+```
 
 * ### Check logs 
 
