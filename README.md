@@ -624,7 +624,7 @@ gcloud pubsub topics create function-topic
 
 ### 2. Set this function to automatically start every hour.
 
-* ### Configure Cloud scheduler that function run every hour and show logs for last hour.
+* ### Configure Cloud scheduler that function run every hour.
 
 ```
 gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
@@ -638,7 +638,7 @@ gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
 -------------------------------------------------------
 
 
-### 3. Function should connect to BigQuery dataset and display statistics of HTTP responses for the last hour.
+### 3. Make Function that connect to BigQuery dataset and display statistics of HTTP responses for the last hour.
 
 * ### Prepare VM with Nginx and fluentd. 
 
@@ -709,7 +709,7 @@ def hello_404():
     'SELECT * FROM `fluentd.nginx_access` '
     'WHERE code = "404" ' 
     'ORDER BY time DESC '
-    'LIMIT 10')
+    'LIMIT 1')
 
   query_job = client.query(query)
 
