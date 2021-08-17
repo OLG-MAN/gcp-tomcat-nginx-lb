@@ -657,7 +657,7 @@ gcloud iam service-accounts create connect-to-bigquery
 gcloud projects add-iam-policy-binding <project-name> --member="serviceAccount:connect-to-bigquery@<project-name>.iam.gserviceaccount.com" --role="roles/owner"
 ```
 
-* ### Create function to that connect to BigQuery and print Nginx last hour access logs.
+* ### Create function that connect to BigQuery and print Nginx last hour access logs.
 
 ![](img/18.png)
 
