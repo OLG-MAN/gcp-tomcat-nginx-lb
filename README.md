@@ -738,11 +738,11 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 
 * ### Summary 
 * #### Install Nginx, install Ruby through RVM.
-* #### Install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery.
+* #### Install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery, fluent-plugin-gcloud-pubsub-custom.
 * #### Configure fluent.conf
-- Make all access logs flow to bigquery
-- Make all-time running script in VM, what grep code 404 from access.log and write to 404.log
-- Make '404' logs flow to Pub/Sub that started function what get last '404' log from all access log in Bigquery
+* #### Make 'all access' logs flow to Bigquery. (plugin fluent-plugin-bigquery)
+* #### Make all-time running script in VM, what grep logs by code 404 from access.log and write to 404.log
+* #### Make '404' logs flow to Pub/Sub that started function what get last '404' log from all access log in Bigquery. (plugin fluent-plugin-gcloud-pubsub-custom)
  
 * ### Install nginx and Ruby hrough RVM.
 
@@ -758,15 +758,17 @@ gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D69
 \curl -sSL https://get.rvm.io | bash -s stable --rails
 ```
 
-* ### install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery.
+* ### Install gems: 
 
 ```
 gem install fluentd
 gem install google-cloud-bigquery
-gem install google-cloud-bigquery
+gem install fluent-plugin-bigquery
+gem install fluent-plugin-gcloud-pubsub-custom
+
 ```
 
-* ### Make Make all-time running script. Start it in background.
+* ### Make all-time running script. Start it in background.
 
 ```
 # Script
@@ -785,13 +787,15 @@ sudo chmod 755 404.sh
 * ### Configure fluent.conf
 
 ```
-# Replace the existing fluentd config file with new fluent.conf in repo
+# Replace the existing fluentd config file with new fluent.conf in repo. 
+# (Configuration code add to the end of file)
+
 # Start Fluentd as a daemon
 fluentd -c ./fluent/fluent.conf &
 
 ``` 
 
-* ### Check Pub/Sub code 404 logs data and Bigquery all logs data.
+* ### Check Pub/Sub 'code 404 logs' data and Bigquery 'all logs' data.
 
 
 ![](img/not.png)
@@ -800,7 +804,8 @@ fluentd -c ./fluent/fluent.conf &
 ![](img/not.png)
 
 
-* ### Create Function what triggered to Pub/Sub code-404 topic and pull code 404 last log from Bigquery.
+* ### Create Cloud Function what triggered from Pub/Sub 'code-404' topic and pull last '404' log from Bigquery.
+
 
 ```
 from google.cloud import bigquery
