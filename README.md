@@ -742,7 +742,7 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 * #### Configure fluent.conf
 * #### Make 'all access' logs flow to Bigquery. (plugin fluent-plugin-bigquery)
 * #### Make all-time running script in VM, what grep logs by code 404 from access.log and write to 404.log
-* #### Make '404' logs flow to Pub/Sub that started function what get last '404' log from all access log in Bigquery. (plugin fluent-plugin-gcloud-pubsub-custom)
+* #### Make '404' logs flow to Pub/Sub that started Function what get last '404' log from 'all access' logs in Bigquery. (plugin fluent-plugin-gcloud-pubsub-custom)
  
 * ### Install nginx and Ruby hrough RVM.
 
