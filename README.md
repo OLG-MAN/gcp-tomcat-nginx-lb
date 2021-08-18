@@ -733,9 +733,111 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 
 ![](img/22.png)
 
-### Option 2. Full-automatic 404-logs function.
 
-* (Not ready yet..)
+### Option 2. Full-automatic 404-logs function. 
+
+* ### Summary 
+* #### Install Nginx, install Ruby through RVM.
+* #### Install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery.
+* #### Configure fluent.conf
+- Make all access logs flow to bigquery
+- Make all-time running script in VM, what grep code 404 from access.log and write to 404.log
+- Make '404' logs flow to Pub/Sub that started function what get last '404' log from all access log in Bigquery
+ 
+* ### Install nginx and Ruby hrough RVM.
+
+```
+# Nginx
+sudo apt intall nginx -y
+
+# gpg2
+sudo apt install gnupg2 -y
+
+# Ruby RVM
+gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+\curl -sSL https://get.rvm.io | bash -s stable --rails
+```
+
+* ### install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery.
+
+```
+gem install fluentd
+gem install google-cloud-bigquery
+gem install google-cloud-bigquery
+```
+
+* ### Make Make all-time running script. Start it in background.
+
+```
+# Script
+#!/bin/bash
+while true
+do
+cat /var/log/nginx/access.log | grep 404 > /var/log/nginx/404.log
+sleep 2
+done
+
+# Start script
+sudo chmod 755 404.sh
+./404.sh &
+```
+
+* ### Configure fluent.conf
+
+```
+# Replace the existing fluentd config file with new fluent.conf in repo
+# Start Fluentd as a daemon
+fluentd -c ./fluent/fluent.conf &
+
+``` 
+
+* ### Check Pub/Sub code 404 logs data and Bigquery all logs data.
+
+
+![](img/not.png)
+
+
+![](img/not.png)
+
+
+* ### Create Function what triggered to Pub/Sub code-404 topic and pull code 404 last log from Bigquery.
+
+```
+from google.cloud import bigquery
+
+def hello_404():
+
+  client = bigquery.Client()
+
+  query = (
+    'SELECT * FROM `fluentd.nginx_access` '
+    'WHERE code = "404" ' 
+    'ORDER BY time DESC '
+    'LIMIT 1')
+
+  query_job = client.query(query)
+
+  print("The query data: ")
+  for row in query_job:
+    print("time {}, remote {}, method {}, code {}, path {}".format(row[0], row[1], row[4], row[6], row[5]))
+
+  return f'The query run successfully'
+
+hello_404()
+
+```
+
+* ### Check Function logs.
+
+![](img/not.png)
+
+* ### Check Pub/Sub logs.
+
+![](img/not.png)
+
+* ### Check Bigquery logs.
+
+![](img/not.png)
 
 
 -------------------------------------------
