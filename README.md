@@ -748,23 +748,23 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 
 ```
 # Nginx
-sudo apt intall nginx -y
+sudo apt install nginx -y
 
 # gpg2
 sudo apt install gnupg2 -y
 
 # Ruby RVM
 gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-\curl -sSL https://get.rvm.io | bash -s stable --rails
+curl -sSL https://get.rvm.io | bash -s stable --rails
 ```
 
 * ### Install gems: 
 
 ```
-gem install fluentd
-gem install google-cloud-bigquery
-gem install fluent-plugin-bigquery
-gem install fluent-plugin-gcloud-pubsub-custom
+gem install fluentd --no-doc
+fluentd --setup ./fluent
+gem install fluent-plugin-bigquery --no-doc
+gem install fluent-plugin-gcloud-pubsub-custom --no-doc
 
 ```
 
@@ -772,12 +772,15 @@ gem install fluent-plugin-gcloud-pubsub-custom
 
 ```
 # Script
+
 #!/bin/bash
+sudo su <<HERE
 while true
 do
 cat /var/log/nginx/access.log | grep 404 > /var/log/nginx/404.log
 sleep 2
 done
+HERE
 
 # Start script
 sudo chmod 755 404.sh
@@ -797,12 +800,7 @@ fluentd -c ./fluent/fluent.conf &
 
 * ### Check Pub/Sub 'code 404 logs' data and Bigquery 'all logs' data.
 
-
-![](img/not.png)
-
-
-![](img/not.png)
-
+(not ready)
 
 * ### Create Cloud Function what triggered from Pub/Sub 'code-404' topic and pull last '404' log from Bigquery.
 
@@ -834,15 +832,7 @@ hello_404()
 
 * ### Check Function logs.
 
-![](img/not.png)
 
-* ### Check Pub/Sub logs.
-
-![](img/not.png)
-
-* ### Check Bigquery logs.
-
-![](img/not.png)
-
+(not ready)
 
 -------------------------------------------
