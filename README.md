@@ -738,10 +738,10 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 
 * ### Summary 
 * #### Install Nginx, install Ruby through RVM.
-* #### Install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery, fluent-plugin-gcloud-pubsub-custom.
+* #### Install gems: fluentd, fluent-plugins.
 * #### Configure fluent.conf
+* #### Configure Nginx that '404' logs redirect to file 404.log
 * #### Make 'all access' logs flow to Bigquery. (plugin fluent-plugin-bigquery)
-* #### Configure Nginx that '404' page logs redirect to file 404.log
 * #### Make '404' logs flow to Pub/Sub that started Function what get last '404' log from 'all access' logs in Bigquery. (plugin fluent-plugin-gcloud-pubsub-custom)
  
 * ### Install nginx and Ruby hrough RVM.
@@ -801,7 +801,7 @@ server {
 
 ```
 # Replace the existing fluentd config file with new fluent.conf in repo. 
-# (Configuration code add to the end of file)
+# (Configuration code added to the end of file)
 
 # Start Fluentd as a daemon
 fluentd -c ./fluent/fluent.conf &
