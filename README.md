@@ -741,7 +741,7 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 * #### Install gems: fluentd, fluent-plugin-bigquery, google-cloud-bigquery, fluent-plugin-gcloud-pubsub-custom.
 * #### Configure fluent.conf
 * #### Make 'all access' logs flow to Bigquery. (plugin fluent-plugin-bigquery)
-* #### Make all-time running script in VM, what grep logs by code 404 from access.log and write to 404.log
+* #### Configure Nginx that '404' page logs redirect to file 404.log
 * #### Make '404' logs flow to Pub/Sub that started Function what get last '404' log from 'all access' logs in Bigquery. (plugin fluent-plugin-gcloud-pubsub-custom)
  
 * ### Install nginx and Ruby hrough RVM.
@@ -768,23 +768,29 @@ gem install fluent-plugin-gcloud-pubsub-custom --no-doc
 
 ```
 
-* ### Make all-time running script. Start it in background.
+* ### Configure /etc/nginx/sites-available/default
 
 ```
-# Script
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
 
-#!/bin/bash
-sudo su <<HERE
-while true
-do
-cat /var/log/nginx/access.log | grep 404 > /var/log/nginx/404.log
-sleep 2
-done
-HERE
+        root /var/www/html;
 
-# Start script
-sudo chmod 755 404.sh
-./404.sh &
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+        error_page 404 /404.html;
+
+        location = /404.html {
+            access_log /home/oleg_mandrychenko/404.log;
+            internal;
+       }
+}
+
 ```
 
 * ### Configure fluent.conf
@@ -796,7 +802,7 @@ sudo chmod 755 404.sh
 # Start Fluentd as a daemon
 fluentd -c ./fluent/fluent.conf &
 
-``` 
+```
 
 * ### Check Pub/Sub 'code 404 logs' data and Bigquery 'all logs' data.
 
