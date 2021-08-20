@@ -771,6 +771,7 @@ gem install fluent-plugin-gcloud-pubsub-custom --no-doc
 ```
 
 * ### Configure /etc/nginx/sites-available/default
+* (Copy 404 logs to 404.log)  
 
 ```
 server {
@@ -778,21 +779,22 @@ server {
         listen [::]:80 default_server;
 
         root /var/www/html;
+        
+        index index.html index.htm index.nginx-debian.html;
 
         server_name _;
 
         location / {
-                try_files $uri $uri/ =404;
+            try_files $uri $uri/ =404;
         }
 
         error_page 404 /404.html;
 
         location = /404.html {
-            access_log /home/oleg_mandrychenko/404.log;
+            access_log /var/log/nginx/404.log;
             internal;
        }
 }
-
 ```
 
 * ### Configure fluent.conf
@@ -806,9 +808,11 @@ fluentd -c ./fluent/fluent.conf &
 
 ```
 
-* ### Check Pub/Sub 'code 404 logs' data and Bigquery 'all logs' data.
+* ### Check Pub/Sub test message.
 
-(not ready)
+![](img/23.png)
+
+![](img/24.png)
 
 * ### Create Cloud Function what triggered from Pub/Sub 'code-404' topic and pull last '404' log from Bigquery.
 
@@ -837,10 +841,16 @@ def hello_404():
 hello_404()
 
 ```
+* ### Check nginx path.
+
+![](img/25.png)
 
 * ### Check Function logs.
 
+![](img/26.png)
 
-(not ready)
+* ### Check Function logs.
+
+![](img/27.png)
 
 -------------------------------------------
