@@ -31,7 +31,7 @@ usermod -aG adm td-agent
 /usr/sbin/td-agent-gem install fluent-plugin-bigquery
 
 
-# Configure .conf file
+# Configure .conf file connect to BigQuery
 cat << EOF >> /etc/td-agent/td-agent.conf
 <source>
   @type tail

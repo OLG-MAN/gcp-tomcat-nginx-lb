@@ -16,7 +16,7 @@
 
 ### Configuring Network
 
-* #### Delete default VPC. Make new VPC with 2 subnets (for backend,frontend and for proxy)
+* #### Delete default VPC. Make new VPC with 2 subnets (for backend and for proxy)
 
 ```
 gcloud compute networks delete default
@@ -36,7 +36,7 @@ gcloud compute networks subnets create proxy-only-subnet \
 --range=10.129.0.0/23
 ```
 
-* #### Configuring firewall rules
+* #### Configuring Firewall rules
 
 ```
 gcloud compute firewall-rules create fw-allow-ssh \
@@ -74,7 +74,7 @@ gcloud compute firewall-rules create fw-allow-proxies \
 
 1. 
 
-* #### Making buckets for tomcat and nginx through gsutil. 
+* #### Making buckets for tomcat and nginx through 'gsutil'. 
 
 ```
 gsutil mb gs://tomcat-bucket1
@@ -97,7 +97,7 @@ gsutil iam ch allUsers:objectViewer gs://nginx-bucket12
 
 2. 
 
-* #### Create instance template for tomcat MIG with startup script from bucket. (used startup-tomcat.sh file in repo)
+* #### Create instance template for tomcat MIG with startup script from bucket. (using startup-tomcat.sh file in repo)
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-1 \
@@ -176,7 +176,7 @@ gcloud compute backend-services add-backend tomcat-backend-service \
 ```
 (After creating and adding backend service, need change port from 80 to 8080 manually)
 
-* #### URL map (will lb name)
+* #### URL map
 
 ```
 gcloud compute url-maps create tomcat-int-lb \
@@ -208,9 +208,9 @@ gcloud compute forwarding-rules create tomcat-forwarding-rule \
 ```
 ------------------------------------------
 
-4. 
+1. 
 
-* #### Create instance template for nginx MIG with startup script from bucket. (used startup-nginx.sh file in repo)
+* #### Create instance template for nginx MIG with startup script from bucket. (using startup-nginx.sh file in repo)
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-nginx-1 \
@@ -225,7 +225,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --boot-disk-type=pd-balanced
 ```
 
-* #### Create Managed Instance Group from Nginx
+* #### Create Managed Instance Group from Nginx template.
 
 ```
 gcloud compute --project "tomcat-nginx-lb" health-checks create http "nginx-health-check" \
@@ -273,22 +273,22 @@ gcloud compute instance-groups set-named-ports instance-group-nginx-1 \
 gcloud compute addresses create lb-ipv4-1 \
 --ip-version=IPV4 \
 --global
-```
-And describe IP
-```
+
+# Describe IP
+
 gcloud compute addresses describe lb-ipv4-1 \
 --format="get(address)" \
 --global
 ```
 
-* #### Health check for tomcat MIG LB
+* #### Health check for Nginx MIG LB
 
 ```
 gcloud compute health-checks create http nginx-mig-check \
 --port 80
 ```
 
-* #### Backend service
+* #### Create Backend service
 
 ```
 gcloud compute backend-services create nginx-backend-service \
@@ -307,7 +307,7 @@ gcloud compute backend-services add-backend nginx-backend-service \
 --global
 ```
 
-* #### URL map (wil be LB name)
+* #### URL map
 
 ```
 gcloud compute url-maps create ext-nginx-lb \
@@ -334,6 +334,7 @@ gcloud compute forwarding-rules create http-content-rule \
 ### Summary
 
 - We can go to external LB what redirected us on Nginx MiG. On main page we can find Nginx Frontend page with data 
+
 ```
 This is Frontend
 
@@ -341,24 +342,25 @@ instance-group-nginx-1-q0l2
 instance-group-nginx-1-q0l2.us-west1-a.c.tomcat-nginx-lb.internal
 ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (US), The Dalles
 ```
+
 - Nginx MIG configured with Nginx internal LB what redirected to tomcat MIG through GCP internal LB IP address. 
 
 - If we go to <external-LB-IP>/tomcat we being redirect to backend with tomcat admin main page.
 
 - If we go to <external-LB-IP>/demo we being redirect to backend with tomcat sample app what pre-installed in startup script.
 
-- If we go to <external-LB-IP>/img we being redirect to backend bucket with particular image.
+- If we go to <external-LB-IP>/img we being redirect to backend bucket with target image.
 
 --------------------------------------------------
 
-6. ### Analyzing logs, Fluentd and BigQuery
+1. ### Analyzing logs, Fluentd and BigQuery
 
-* #### Fluentd
+* #### Configure Fluentd.
 
 - Agent already pre-installed and configured in startup-nginx.sh
 - Important, when creating templates give 'access anabled' to BigQuey API
 
-* #### Configure BigQuery
+* #### Configure BigQuery.
 
 - Configure Bigquery dataset and table.
 
@@ -386,7 +388,6 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 - Select the Edit as Text option.
 
 - Copy the following JSON column definition into the text box.
-
 ```
 
 ```
@@ -418,7 +419,7 @@ sudo apt install -y apache2-utils
 ab -t 20 -c 1 http://[IP_ADDRESS]/
 ```
 
-  - #### Get a list of ApacheBench requests using the following sample queries in the Query Editor.
+- #### Get a list of ApacheBench requests using the following sample queries in the Query Editor.
 
 ```
 SELECT * FROM `fluentd.nginx_access` limit 100
@@ -475,7 +476,7 @@ logName="projects/tomcat-nginx-lb/logs/cloudaudit.googleapis.com%2Factivity" OR
 resource.type:"gce" OR resource.type="gcs_bucket" OR resource.type="bigquery_resource"
 ```
 
-- ### Set IAM policy permissions for the Pub/Sub topic
+- ### Set IAM policy permissions for the Pub/Sub topic.
 Create Service account to the "es-logs-export" Pub/Sub topic with the Pub/Sub Publisher permissions, it grant the service account permission to publish to the topic.
 
 - ### Check that the topic is receiving messages by using the Metrics Explorer in Cloud Monitoring.
@@ -529,7 +530,7 @@ https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
 
 - startup script in startup-tomcat-centos.sh file
 
-* ### Make instance template for tomcat on CentOS
+* ### Make instance template for tomcat on CentOS.
 
 ```
 gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance-template-tomcat-centos-1 \
@@ -545,7 +546,7 @@ gcloud beta compute --project=tomcat-nginx-lb instance-templates create instance
 --boot-disk-type=pd-balanced
 ```
 
-* ### Update MIG VM's 
+* ### Update MIG VM's.
 
 - Update already working MIG instance-group-tomcat-1 with max autoscale oversize instance=1 and max unavailable instance=1.
 
@@ -600,7 +601,7 @@ gcloud compute health-checks create http tomcat-lb-check \
 
 ### 1. Create a python3 function that will run through Pub/Sub and print a message.
 
-* ### Create Pub/Sub topic
+* ### Create Pub/Sub topic.
 
 ```
 gcloud pubsub topics create function-topic
@@ -645,12 +646,12 @@ gcloud scheduler jobs create pubsub function-start --schedule="0 */1 * * *"
 ```
 # Startup script in startup-nginx.sh file 
 ```
+
 * ### Configure Bigquery and log export.
 
 ![](img/17.png)
 
-
-* ### Configure Service Account for Cloud Function
+* ### Configure Service Account for Cloud Function.
 
 ```
 gcloud iam service-accounts create connect-to-bigquery
@@ -685,16 +686,15 @@ def hello_world(request):
 
 ![](img/20.png)
 
-* ### Check Nginx logs 
+* ### Check Nginx logs.
 
 ![](img/19.png)
-
 
 -------------------------------------
 
 ### 4. Create one more function that will run every time when Nginx have a '404' error and display the error message.
 
-### Option 1. Semi-automatic 404-logs function 
+### Option 1. Semi-automatic 404-logs function. 
 
 * ### Create function what filter last 10 Nginx logs by code 404 and print it.
 
@@ -729,16 +729,15 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 --topic=error-404 --message-body="Every minutes 404 check"
 ```
 
-* ### Check logs 
+* ### Check logs.
 
 ![](img/22.png)
-
 
 ### Option 2. Full-automatic 404-logs function. 
 
 * ### Summary 
 * #### Install Nginx, install Ruby through RVM.
-* #### Install gems: fluentd, fluent-plugins.
+* #### Install gems: fluentd, fluentd-plugins.
 * #### Configure fluent.conf
 * #### Configure Nginx that '404' logs redirect to file 404.log
 * #### Make 'all access' logs flow to Bigquery. (plugin fluent-plugin-bigquery)
@@ -767,33 +766,32 @@ gem install fluentd --no-doc
 fluentd --setup ./fluent
 gem install fluent-plugin-bigquery --no-doc
 gem install fluent-plugin-gcloud-pubsub-custom --no-doc
-
 ```
 
 * ### Configure /etc/nginx/sites-available/default
-* (Copy 404 logs to 404.log)  
+* (Copy '404' logs to 404.log)  
 
 ```
 server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
+  listen 80 default_server;
+  listen [::]:80 default_server;
 
-        root /var/www/html;
+  root /var/www/html;
         
-        index index.html index.htm index.nginx-debian.html;
+  index index.html index.htm index.nginx-debian.html;
 
-        server_name _;
+  server_name _;
 
-        location / {
-            try_files $uri $uri/ =404;
-        }
+  location / {
+    try_files $uri $uri/ =404;
+  }
 
-        error_page 404 /404.html;
+  error_page 404 /404.html;
 
-        location = /404.html {
-            access_log /var/log/nginx/404.log;
-            internal;
-       }
+  location = /404.html {
+    access_log /var/log/nginx/404.log;
+    internal;
+  }
 }
 ```
 
@@ -805,7 +803,6 @@ server {
 
 # Start Fluentd as a daemon
 fluentd -c ./fluent/fluent.conf &
-
 ```
 
 * ### Check Pub/Sub test message.
@@ -815,7 +812,6 @@ fluentd -c ./fluent/fluent.conf &
 ![](img/24.png)
 
 * ### Create Cloud Function what triggered from Pub/Sub 'code-404' topic and pull last '404' log from Bigquery.
-
 
 ```
 from google.cloud import bigquery
@@ -839,13 +835,13 @@ def hello_404():
   return f'The query run successfully'
 
 hello_404()
-
 ```
+
 * ### Check nginx path.
 
 ![](img/25.png)
 
-* ### Check Function logs.
+* ### Check BigQuery logs.
 
 ![](img/26.png)
 
@@ -854,4 +850,5 @@ hello_404()
 ![](img/27.png)
 
 ### [TOP](https://github.com/OLG-MAN/tomcat-nginx-lb#Task_1)
+
 -------------------------------------------
