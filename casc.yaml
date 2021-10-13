@@ -1,7 +1,4 @@
 jenkins:
-  agentProtocols:
-  - "JNLP4-connect"
-  - "Ping"
   securityRealm:
     local:
       allowsSignup: false
@@ -18,7 +15,6 @@ jenkins:
             emailAddress: "oleg@admin.com"
         - "apiToken"
         - "slack"
-  slaveAgentPort: -1
   systemMessage: "JENKINS SYSTEM MESSAGE HERE"
   updateCenter:
     sites:
