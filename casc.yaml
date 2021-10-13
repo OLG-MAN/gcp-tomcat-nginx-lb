@@ -1,0 +1,2 @@
+jenkins:
+  systemMessage: "Controlled by Configuration as Code"
