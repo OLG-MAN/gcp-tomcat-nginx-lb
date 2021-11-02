@@ -14,9 +14,11 @@
 
 ## Solution using Cloud Shell
 
-### Configuring Network
+## 0. 
 
-* #### Delete default VPC. Make new VPC with 2 subnets (for backend and for proxy)
+### Configuring Network for tasks
+
+* #### Delete default VPC. Make new VPC with 2 subnets (for backend and for proxy(int-lb))
 
 ```
 gcloud compute networks delete default
@@ -72,7 +74,7 @@ gcloud compute firewall-rules create fw-allow-proxies \
 
 -----------------------------------------------------
 
-1. 
+## 1. 
 
 * #### Making buckets for tomcat and nginx through 'gsutil'. 
 
@@ -80,22 +82,12 @@ gcloud compute firewall-rules create fw-allow-proxies \
 gsutil mb gs://tomcat-bucket1
 gsutil cp startup-tomcat.sh gs://tomcat-bucket1
 gsutil cp sample.war gs://tomcat-bucket1
-
-gsutil mb gs://nginx-bucket1
-gsutil cp startup-nginx.sh gs://nginx-bucket1
-
-gsutil mb gs://nginx-bucket12
-gsutil cp 101.png gs://nginx-bucket12
 ```
 
-* #### Make Public access for nginx-bucket12
-```
-gsutil iam ch allUsers:objectViewer gs://nginx-bucket12
-```
 
 -------------------------------------------------------------
 
-2. 
+## 2. 
 
 * #### Create instance template for tomcat MIG with startup script from bucket. (using startup-tomcat.sh file in repo)
 
@@ -142,73 +134,26 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 ```
 --------------------------------------------
 
-3. 
+## 3. 
 
-* #### Making Internal LB for tomcat MIG
-
-* #### Health check for tomcat MIG
+* #### Making buckets for nginx through 'gsutil'. 
 
 ```
-gcloud compute health-checks create http tomcat-mig-check \
---region=us-west1 \
---port 8080 
+gsutil mb gs://nginx-bucket1
+gsutil cp startup-nginx.sh gs://nginx-bucket1
+
+gsutil mb gs://nginx-bucket12
+gsutil cp 101.png gs://nginx-bucket12
 ```
 
-* #### Backend Service
-
+* #### Make Public access for nginx-bucket12
 ```
-gcloud compute backend-services create tomcat-backend-service \
---load-balancing-scheme=INTERNAL_MANAGED \
---protocol=HTTP \
---health-checks=tomcat-mig-check \
---health-checks-region=us-west1 \
---region=us-west1
-```
-* #### Add backends to backend service
-
-```
-gcloud compute backend-services add-backend tomcat-backend-service \
---balancing-mode=UTILIZATION \
---max-utilization=0.8 \
---instance-group=instance-group-tomcat-1 \
---instance-group-zone=us-west1-b \
---region=us-west1
-```
-(After creating and adding backend service, need change port from 80 to 8080 manually)
-
-* #### URL map
-
-```
-gcloud compute url-maps create tomcat-int-lb \
---default-service=tomcat-backend-service \
---region=us-west1
+gsutil iam ch allUsers:objectViewer gs://nginx-bucket12
 ```
 
-* #### Target proxy
+-----------------------------------------------
 
-```
-gcloud compute target-http-proxies create tomcat-lb-proxy \
---url-map=tomcat-int-lb \
---url-map-region=us-west1 \
---region=us-west1
-```
-
-* #### Forwarding rule 
-
-```
-gcloud compute forwarding-rules create tomcat-forwarding-rule \
---load-balancing-scheme=INTERNAL_MANAGED \
---network=lb-network \
---subnet=backend-subnet \
---address=10.1.2.99 \
---ports=8080 \
---region=us-west1 \
---target-http-proxy=tomcat-lb-proxy \
---target-http-proxy-region=us-west1
-```
-------------------------------------------
-
-1. 
+## 4. 
 
 * #### Create instance template for nginx MIG with startup script from bucket. (using startup-nginx.sh file in repo)
 
@@ -255,7 +200,73 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 
 ---------------------------------------------
 
-5. 
+## 5. 
+
+* #### Making Internal LB for tomcat MIG
+
+* #### Health check for tomcat MIG
+
+```
+gcloud compute health-checks create http tomcat-mig-check \
+--region=us-west1 \
+--port 8080 
+```
+
+* #### Backend Service
+
+```
+gcloud compute backend-services create tomcat-backend-service \
+--load-balancing-scheme=INTERNAL_MANAGED \
+--protocol=HTTP \
+--health-checks=tomcat-mig-check \
+--health-checks-region=us-west1 \
+--region=us-west1
+```
+
+* #### Add backends to backend service
+
+```
+gcloud compute backend-services add-backend tomcat-backend-service \
+--balancing-mode=UTILIZATION \
+--max-utilization=0.8 \
+--instance-group=instance-group-tomcat-1 \
+--instance-group-zone=us-west1-b \
+--region=us-west1
+```
+(After creating and adding backend service, need change port from 80 to 8080 manually)
+
+* #### URL map
+
+```
+gcloud compute url-maps create tomcat-int-lb \
+--default-service=tomcat-backend-service \
+--region=us-west1
+```
+
+* #### Target proxy
+
+```
+gcloud compute target-http-proxies create tomcat-lb-proxy \
+--url-map=tomcat-int-lb \
+--url-map-region=us-west1 \
+--region=us-west1
+```
+
+* #### Forwarding rule 
+
+```
+gcloud compute forwarding-rules create tomcat-forwarding-rule \
+--load-balancing-scheme=INTERNAL_MANAGED \
+--network=lb-network \
+--subnet=backend-subnet \
+--address=10.1.2.99 \
+--ports=8080 \
+--region=us-west1 \
+--target-http-proxy=tomcat-lb-proxy \
+--target-http-proxy-region=us-west1
+```
+
+------------------------------------------
 
 * #### Extarnal LB for Nginx MIG
 
@@ -333,7 +344,8 @@ gcloud compute forwarding-rules create http-content-rule \
 
 ### Summary
 
-- We can go to external LB what redirected us on Nginx MiG. On main page we can find Nginx Frontend page with data 
+- We can go to external LB what redirected us on Nginx MiG. 
+- On main page we can find Nginx Frontend page with data:
 
 ```
 This is Frontend
@@ -353,12 +365,12 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 --------------------------------------------------
 
-1. ### Analyzing logs, Fluentd and BigQuery
+6. ### Analyzing logs, Fluentd and BigQuery
 
 * #### Configure Fluentd.
 
 - Agent already pre-installed and configured in startup-nginx.sh
-- Important, when creating templates give 'access anabled' to BigQuey API
+- Important, when we creating templates give 'access anabled' to BigQuey API
 
 * #### Configure BigQuery.
 
@@ -409,7 +421,7 @@ References
 
 --------------------------------------------
 
-* #### Simulating load and calculating statistics from the logs in Bigquery.
+* #### Simulating load and calculating statistics from the logs in Bigquery. (optional)
 
 - #### Install the ApacheBench (ab) web server benchmarking tool.
 
@@ -452,10 +464,11 @@ ORDER BY
 
 ### Solution
 
-### 1. 
-* ### Make logs export flow like in image. 
+### 1.
 
-- ### From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Cloud Elastic Deployment.
+* #### Make logs export flow like in image. 
+
+- #### From Cloud logging logs sends to Pub/Sub after this logs send to Filebeat and finally to Cloud Elastic Deployment.
 
 ![](img/5.png)
 
@@ -524,7 +537,7 @@ https://www.elastic.co/guide/en/cloud/current/ec-create-deployment.html
 ----------------------------------------------------
 
 
-### 2. 
+### 2.
 
 * ### Make startup script with installed and configured tomcat on CentOS image.
 
@@ -599,9 +612,11 @@ gcloud compute health-checks create http tomcat-lb-check \
 
 ### Solution
 
-### 1. Create a python3 function that will run through Pub/Sub and print a message.
+### 1. 
 
-* ### Create Pub/Sub topic.
+* #### Create a python3 function that will run through Pub/Sub and print a message.
+
+* #### Create Pub/Sub topic.
 
 ```
 gcloud pubsub topics create function-topic
@@ -662,6 +677,8 @@ gcloud projects add-iam-policy-binding <project-name> --member="serviceAccount:c
 
 ![](img/18.png)
 
+* #### Python function code:
+
 ```
 from google.cloud import bigquery
 
@@ -692,11 +709,13 @@ def hello_world(request):
 
 -------------------------------------
 
-### 4. Create one more function that will run every time when Nginx have a '404' error and display the error message.
+### 4. 
 
-### Option 1. Semi-automatic 404-logs function. 
+#### Create one more function that will run every time when Nginx have a '404' error and display the error message.
 
-* ### Create function what filter last 10 Nginx logs by code 404 and print it.
+#### Option 1. Semi-automatic 404-logs function. 
+
+* #### Create function what filter last 10 Nginx logs by code 404 and print it.
 
 ```
 from google.cloud import bigquery
@@ -735,7 +754,7 @@ gcloud scheduler jobs create pubsub error404-start --schedule="* * * * *" \
 
 ### Option 2. Full-automatic 404-logs function. 
 
-* ### Summary 
+
 * #### Install Nginx, install Ruby through RVM.
 * #### Install gems: fluentd, fluentd-plugins.
 * #### Configure fluent.conf
