@@ -200,7 +200,7 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 
 ---------------------------------------------
 
-### 5. 
+## 5. 
 
 * #### Making Internal LB for tomcat MIG
 
