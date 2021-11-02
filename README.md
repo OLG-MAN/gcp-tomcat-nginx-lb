@@ -76,7 +76,7 @@ gcloud compute firewall-rules create fw-allow-proxies \
 
 ## 1. 
 
-* #### Making buckets for tomcat and nginx through 'gsutil'. 
+* #### Making buckets for tomcat through 'gsutil'. 
 
 ```
 gsutil mb gs://tomcat-bucket1
