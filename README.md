@@ -200,7 +200,7 @@ gcloud beta compute --project "tomcat-nginx-lb" instance-groups managed set-auto
 
 ---------------------------------------------
 
-## 5. 
+### 5. 
 
 * #### Making Internal LB for tomcat MIG
 
@@ -365,7 +365,9 @@ ip : 34.105.24.253 provider : UNALLOCATED location : United States Of America (U
 
 --------------------------------------------------
 
-6. ### Analyzing logs, Fluentd and BigQuery
+## 6.
+
+* ### Analyzing logs, Fluentd and BigQuery
 
 * #### Configure Fluentd.
 
